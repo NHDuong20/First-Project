@@ -12,7 +12,7 @@ include('includes/config.php');
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title> Về chúng tôi</title>
+  <title>Nhóm 1 | Về chúng tôi</title>
 
   <!-- Bootstrap core CSS -->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
