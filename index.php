@@ -1,150 +1,224 @@
-<?php
-session_start();
-include('includes/config.php');
-
-?>
-
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
-
-  <title>Trang chủ</title>
-
-  <!-- Bootstrap core CSS -->
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Custom styles for this template -->
-  <link href="css/modern-business.css" rel="stylesheet">
-  <style>
-    #menu li:hover {
-      background-color: gray;
-    }
-  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" type="text/css" href="Boostrap/css/bootstrap.min.css" />
+  <title>NewsFeed</title>
+  <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css"><!-- phải có file này mới dùng được boostrap-->
+  <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/animate.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/font.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/li-scroller.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/slick.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/jquery.fancybox.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/theme.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 </head>
+<?php
+
+include 'config.php';
+include 'Process_db.php';
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+?>
 
 <body>
-
-  <!-- Navigation -->
-  <?php include('includes/header.php'); ?>
-  <div>&nbsp;</div>
-
-  <div style="margin-top: -4px;" class="navbar bg-dark " id="menu">
-
-    <?php $query = mysqli_query($con, "select id,CategoryName from tblcategory");
-    while ($row = mysqli_fetch_array($query)) {
-    ?>
-
-      <li class="nav-item" style="list-style: none;">
-        <a class="nav-link" style="font-size:18px;color:white;" href="category.php?catid=<?php echo htmlentities($row['id']) ?>"><?php echo htmlentities($row['CategoryName']); ?></a>
-      </li>
-    <?php } ?>
-
+  <div id="preloader">
+    <div id="status">&nbsp;</div>
   </div>
-  </div>
-
-  <!-- Page Content -->
-  <div class="container">
-
-
-
-    <div class="row" style="margin-top: 4%">
-
-      <!-- Blog Entries Column -->
-      <div class="col-md-8">
-
-        <!-- Blog Post -->
-        <?php
-        if (isset($_GET['pageno'])) {
-          $pageno = $_GET['pageno'];
-        } else {
-          $pageno = 1;
-        }
-        $no_of_records_per_page = 5;
-        $offset = ($pageno - 1) * $no_of_records_per_page;
-
-
-        $total_pages_sql = "SELECT COUNT(*) FROM tblposts";
-        $result = mysqli_query($con, $total_pages_sql);
-        $total_rows = mysqli_fetch_array($result)[0];
-        $total_pages = ceil($total_rows / $no_of_records_per_page);
-
-
-        $query = mysqli_query($con, "select tblposts.id as pid,tblposts.PostTitle as posttitle,tblposts.PostImage,tblcategory.CategoryName as category,tblcategory.id as cid,tblsubcategory.Subcategory as subcategory,tblposts.PostDetails as postdetails,tblposts.PostingDate as postingdate,tblposts.PostUrl as url from tblposts left join tblcategory on tblcategory.id=tblposts.CategoryId left join  tblsubcategory on  tblsubcategory.SubCategoryId=tblposts.SubCategoryId where tblposts.Is_Active=1 order by tblposts.id desc  LIMIT  $offset, $no_of_records_per_page");
-        while ($row = mysqli_fetch_array($query)) {
-        ?>
-
-          <div class="card mb-4">
-            <img class="card-img-top" src="admin/postimages/<?php echo htmlentities($row['PostImage']); ?>" alt="<?php echo htmlentities($row['posttitle']); ?>">
-            <div class="card-body">
-              <h2 class="card-title"><?php echo htmlentities($row['posttitle']); ?></h2>
-              <p><b>Sự kiện: </b> <a href="category.php?catid=<?php echo htmlentities($row['cid']) ?>"><?php echo htmlentities($row['category']); ?></a> </p>
-
-              <a href="news-details.php?nid=<?php echo htmlentities($row['pid']) ?>" class="btn btn-primary">Đọc thêm &rarr;</a>
+  <a class="scrollToTop" href="#"><i class="fa fa-angle-up"></i></a>
+  <div class="container-fluid ">
+    <header id="header">
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <div class="header_top">
+            <div class="header_top_left">
+              <ul class="top_nav">
+                <li><a href="index.php">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="?page=lien-he">Contact</a></li>
+              </ul>
             </div>
-            <div class="card-footer text-muted">
-              Đăng vào: <?php echo htmlentities($row['postingdate']); ?>
-
+            <div class="header_top_right">
+              <p><?php echo date('l') ?>, <?php echo date('d - m - Y') ?> </p>
             </div>
           </div>
-        <?php } ?>
-
-
-
-
-        <!-- Pagination -->
-
-
-        <ul class="pagination justify-content-center mb-4">
-          <li class="page-item"><a href="?pageno=1" class="page-link">First</a></li>
-          <li class="<?php if ($pageno <= 1) {
-                        echo 'disabled';
-                      } ?> page-item">
-            <a href="<?php if ($pageno <= 1) {
-                        echo '#';
-                      } else {
-                        echo "?pageno=" . ($pageno - 1);
-                      } ?>" class="page-link">Prev</a>
-          </li>
-          <li class="<?php if ($pageno >= $total_pages) {
-                        echo 'disabled';
-                      } ?> page-item">
-            <a href="<?php if ($pageno >= $total_pages) {
-                        echo '#';
-                      } else {
-                        echo "?pageno=" . ($pageno + 1);
-                      } ?> " class="page-link">Next</a>
-          </li>
-          <li class="page-item"><a href="?pageno=<?php echo $total_pages; ?>" class="page-link">Last</a></li>
-        </ul>
-
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <div class="header_bottom">
+            <div class="logo_area"><a href="index.php" class="logo"><img src="images/logo.jpg" alt=""></a></div>
+            <div class="add_banner"><a href="#"><img width="400px" src="images/banner.jpg" alt="this is picture"></a></div>
+          </div>
+        </div>
       </div>
+    </header>
+    <section id="navArea">
+      <nav class="navbar navbar-inverse" role="navigation">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav main_nav">
+            <li class="active"><a href="index.php"><span class="fa fa-home desktop-home"></span><span class="mobile-show">Home</span></a></li>
 
-      <!-- Sidebar Widgets Column -->
-      <?php include('includes/sidebar.php'); ?>
-    </div>
-    <!-- /.row -->
+            <?php include('include/TrangChu/DanhMuc.php');       ?>
+            <li><a href="?page=lien-he">Liên hệ</a></li>
+          </ul>
+        </div>
+      </nav>
+    </section>
+    <section id="newsSection">
+      <div class="row">
+        <div class="col-lg-12 col-md-12">
+          <div class="latest_newsarea"> <span>Bài Viết Mới</span>
+            <?php include('include/TrangChu/TopBaiVietMoi.php');
+            ?>
+            <div class="social_area">
+              <ul class="social_nav">
+                <li class="facebook"><a href="https://www.facebook.com/hai.buihoang.98284/"></a></li>
+                <li class="twitter"><a href="#"></a></li>
+                <li class="flickr"><a href="#"></a></li>
+                <li class="pinterest"><a href="#"></a></li>
+                <li class="googleplus"><a href="#"></a></li>
+                <li class="vimeo"><a href="#"></a></li>
+                <li class="youtube"><a href="#"></a></li>
+                <li class="mail"><a href="#"></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="contentSection">
+      <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-8">
+          <div class="left_content">
+            <!-- content left--->
 
+            <?php
+            if (isset($_GET['page'])) {
+              $page = $_GET['page'];
+            } else {
+              $page = "";
+            }
+            switch ($page) {
+
+              case "list-bai-viet":
+                include("include/list-bai-viet.php");
+                break;
+
+              case "chi-tiet-bai-viet":
+                include("include/chi-tiet-bai-viet.php");
+                break;
+              case "lien-he":
+                include("include/Lien-He.php");
+                break;
+              default:
+                include("include/home.php");
+            }
+            ?>
+
+
+          </div><!-- End content-left -->
+        </div><!-- col-md-8 -->
+
+        <div class="col-lg-4 col-md-4 col-sm-4">
+          <!-- content left -->
+          <aside class="right_content">
+            <!-- Lastest Post --->
+            <?php include('include/TrangChu/BaiVietMoi_left.php') ?>
+            <!-- END Lastest Post -->
+            <!-- Popular Post -->
+            <?php include('include/TrangChu/BaiVietNoiBat.php') ?>
+            <!-- END Popular Post -->
+            <div class="single_sidebar">
+              <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#category" aria-controls="home" role="tab" data-toggle="tab">Category</a></li>
+                <li role="presentation"><a href="#video" aria-controls="profile" role="tab" data-toggle="tab">Video</a></li>
+                <li role="presentation"><a href="#" aria-controls="profile" role="tab" data-toggle="tab">Img</a></li>
+              </ul>
+              <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="category">
+                  <ul>
+
+                    <?php $category = category();
+                    foreach ($category as $row) {
+                    ?>
+                      <li class="cat-item"><a href="?page=list-bai-viet&&CategoryID=<?php echo $row['CategoryID'] ?>"><?php echo $row['CategoryName'] ?></a></li>
+
+
+
+                    <?php }
+                    ?>
+                  </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="video">
+                  <div class="vide_area">
+                    <iframe width="100%" height="250" src="http://www.youtube.com/embed/h5QWbURNEpA?feature=player_detailpage" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+
+          </aside>
+        </div>
+      </div> <!--  content-right-->
+    </section>
+    <footer id="footer">
+      <div class="footer_top">
+        <div class="row">
+          <div class="col-lg-4 col-md-4 col-sm-4">
+            <div class="footer_widget wow fadeInLeftBig">
+              <h2>Map</h2>
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3725.2380659712044!2d105.87419001438583!3d20.983092086023067!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135aea00c96b6c1%3A0x8e95712f0f470a2c!2zMjE4IEzEqW5oIE5hbSwgVsSpbmggSMawbmcsIEhhaSBCw6AgVHLGsG5nLCBIw6AgTuG7mWksIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1637835378030!5m2!1svi!2s" width="400px" height="270px" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-4">
+            <div class="footer_widget wow fadeInDown">
+              <h2>Categories</h2>
+              <ul class="tag_nav">
+
+                <?php
+
+                $category = category();
+                foreach ($category as $row) {
+                ?>
+                  <li><a href="?page=list-bai-viet&&CategoryID=<?php echo $row['CategoryID'] ?>"><?php echo $row['CategoryName'] ?></a></li>
+
+
+                <?php }
+                ?>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-4">
+            <div class="footer_widget wow fadeInRightBig">
+              <h2>Contact</h2>
+              <p>
+                Working time:24/7 </p>
+              <address>
+                218 Lĩnh Nam, Hoàng Mai, Hà Nội-Phone: 0369668700
+              </address>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer_bottom">
+        <p class="copyright">Copyright &copy; <?php echo date('Y') ?> <a href="index.php">NewsFeed</a></p>
+        <p class="developer">Developed By Wpfreeware</p>
+      </div>
+    </footer>
   </div>
-  <!-- /.container -->
-
-  <!-- Footer -->
-  <?php include('includes/footer.php'); ?>
-
-
-  <!-- Bootstrap core JavaScript -->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-
-  </head>
-
-
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/wow.min.js"></script>
+  <script src="assets/js/bootstrap.min.js"></script>
+  <script src="assets/js/slick.min.js"></script>
+  <script src="assets/js/jquery.li-scroller.1.0.js"></script>
+  <script src="assets/js/jquery.newsTicker.min.js"></script>
+  <script src="assets/js/jquery.fancybox.pack.js"></script>
+  <script src="assets/js/custom.js"></script>
 </body>
 
 </html>

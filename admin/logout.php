@@ -1,11 +1,10 @@
 <?php
-session_start();
-include("includes/config.php");
-$_SESSION['login']=="";
-session_unset();
-session_destroy();
-
+	if(!isset($_SESSION))
+		session_start();
+		unset($_SESSION["success"]);
+		unset($_SESSION["user"]);
+		unset($_SESSION["hotenadmin"]);
+		unset($_SESSION["quyenhan"]);
+		header("location:login.php");
+		session_destroy();
 ?>
-<script language="javascript">
-document.location="index.php";
-</script>
